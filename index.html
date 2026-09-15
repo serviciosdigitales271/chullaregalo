@@ -45,6 +45,7 @@
             border-radius: 50%;
             object-fit: cover;
             border: 2px solid var(--primary);
+            background-color: #fce4ec;
         }
         .brand-texts h1 {
             margin: 0;
@@ -153,7 +154,7 @@
     <header class="header-sticky">
         <div class="header-content">
             <div class="brand-container">
-                <img id="mainLogoImg" src="" alt="Chulla Regalo Logo" class="brand-logo" onerror="this.src='https://via.placeholder.com/50?text=CR'">
+                <img id="mainLogoImg" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 50 50'><rect width='50' height='50' fill='%23d63384'/><text x='25' y='31' font-size='18' font-family='sans-serif' font-weight='bold' fill='white' text-anchor='middle'>CR</text></svg>" alt="Chulla Regalo Logo" class="brand-logo">
                 <div class="brand-texts">
                     <h1>Chulla Regalo</h1>
                     <span>Quito - Ecuador</span>
@@ -468,7 +469,7 @@
                 reader.onload = (e) => sendUpdate(e.target.result);
                 reader.readAsDataURL(imageFile);
             } else {
-                sendUpdate(''); // Envía vacío para que el script mantenga la foto actual
+                sendUpdate(''); 
             }
         }
 
