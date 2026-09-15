@@ -16,7 +16,6 @@
         }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; margin: 0; padding: 0; background-color: var(--bg-light); color: var(--text-dark); }
         
-        /* Cabecera Fija Sticky Optimizada */
         .header-sticky {
             position: sticky;
             top: 0;
@@ -60,7 +59,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* Eslogan Grande, Centrado y Atractivo */
         .header-slogan {
             flex: 2;
             text-align: center;
@@ -87,6 +85,9 @@
         .btn-danger:hover { background: #c0392b; }
         .btn-success { background: #2ecc71; }
         .btn-success:hover { background: #27ae60; }
+        .btn-warning { background: #f39c12; color: white; }
+        .btn-warning:hover { background: #d68910; }
+        
         .btn-whatsapp { background: var(--whatsapp-color); color: white; width: 100%; margin-top: auto; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 15px; padding: 10px; border-radius: 6px; font-weight: bold; text-decoration: none; transition: background 0.2s; }
         .btn-whatsapp:hover { background: var(--whatsapp-dark); }
         
@@ -114,9 +115,7 @@
         textarea { resize: vertical; height: 70px; }
         .hidden { display: none; }
         .loader { text-align: center; font-style: italic; color: #666; padding: 20px; }
-        .alert-box { background: #fff3cd; color: #856404; padding: 12px; border-radius: 6px; margin-bottom: 20px; border: 1px solid #ffeeba; font-size: 14px; }
 
-        /* Diseño responsivo para celulares */
         @media (max-width: 768px) {
             .header-content { flex-direction: column; text-align: center; gap: 10px; }
             .brand-container { justify-content: center; width: 100%; }
@@ -124,7 +123,6 @@
             .header-actions { width: 100%; justify-content: center; }
         }
 
-        /* Botón flotante de WhatsApp */
         .whatsapp-float {
             position: fixed;
             bottom: 25px;
@@ -152,18 +150,16 @@
 </head>
 <body>
 
-    <!-- Cabecera Fija Optimizada -->
     <header class="header-sticky">
         <div class="header-content">
             <div class="brand-container">
-                <img src="logo-chulla-regalo.jpeg" alt="Chulla Regalo Logo" class="brand-logo" onerror="this.src='https://via.placeholder.com/50?text=CR'">
+                <img id="mainLogoImg" src="" alt="Chulla Regalo Logo" class="brand-logo" onerror="this.src='https://via.placeholder.com/50?text=CR'">
                 <div class="brand-texts">
                     <h1>Chulla Regalo</h1>
                     <span>Quito - Ecuador</span>
                 </div>
             </div>
 
-            <!-- Eslogan Grande y Centrado -->
             <p class="header-slogan">✨ "Detalles que transforman momentos ordinarios en inolvidables" ✨</p>
 
             <div class="header-actions">
@@ -173,11 +169,6 @@
     </header>
 
     <div class="container">
-        <!-- Aviso si se abre como archivo local (file://) -->
-        <div id="localWarning" class="alert-box hidden">
-            ⚠️ <b>Atención:</b> Estás abriendo este archivo directamente desde tu disco duro (`file://`). Te recomendamos usar un servidor local (como <b>Live Server</b> en VS Code).
-        </div>
-
         <div id="loginSection" class="admin-panel hidden">
             <h3>🔑 Acceso al Panel de Administración</h3>
             <div class="form-group">
@@ -189,11 +180,21 @@
 
         <div id="adminDashboard" class="admin-panel hidden">
             <h3>🛠️ Panel de Control (Nube)</h3>
-            <p>Agrega productos seleccionando una imagen o cambiando datos directamente en tu Google Sheet.</p>
             
+            <!-- Sección cambiar Logo -->
+            <div style="background: #fff; padding: 15px; border-radius: 6px; margin-bottom: 20px; border: 1px solid #ddd;">
+                <h4 style="margin-top:0;">🖼️ Cambiar Logo de la Marca</h4>
+                <div class="form-group">
+                    <input type="file" id="logoFile" accept="image/*">
+                </div>
+                <button class="btn" onclick="updateLogoImage()">Actualizar Logo</button>
+            </div>
+
             <hr style="border: 0; border-top: 1px solid #ccc; margin: 20px 0;">
 
-            <h4>Agregar Nuevo Producto</h4>
+            <h4 id="formTitleText">Agregar Nuevo Producto</h4>
+            <input type="hidden" id="editItemId" value="">
+            
             <div class="form-group">
                 <label for="newCategory">Categoría:</label>
                 <input type="text" id="newCategory" placeholder="Ej: Arreglos Florales y Rosas">
@@ -215,12 +216,17 @@
             <div class="form-group">
                 <label for="newItemImgFile">Seleccionar Imagen (de tu computadora):</label>
                 <input type="file" id="newItemImgFile" accept="image/*">
+                <small style="color: #666;">Si estás editando y no seleccionas imagen, se mantendrá la actual.</small>
             </div>
             <div class="form-group">
                 <label for="newItemDesc">Descripción:</label>
                 <textarea id="newItemDesc" placeholder="Detalla lo que incluye el arreglo..."></textarea>
             </div>
-            <button class="btn btn-success" onclick="addItem()">Guardar en la Nube</button>
+            
+            <div style="display: flex; gap: 10px;">
+                <button id="saveBtn" class="btn btn-success" onclick="saveItem()">Guardar en la Nube</button>
+                <button id="cancelEditBtn" class="btn btn-danger hidden" onclick="cancelEdit()">Cancelar Edición</button>
+            </div>
 
             <hr style="border: 0; border-top: 1px solid #ccc; margin: 25px 0;">
 
@@ -245,7 +251,6 @@
         </div>
     </div>
 
-    <!-- Botón Flotante de WhatsApp -->
     <a href="https://wa.me/593967287360?text=Hola%20Chulla%20Regalo,%20estoy%20viendo%20el%20catálogo%20web%20y%20deseo%20más%20información%20para%20un%20pedido." class="whatsapp-float" target="_blank" title="Escríbenos por WhatsApp">
         💬
     </a>
@@ -253,16 +258,11 @@
     <script>
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwu-Ys9wHeY6tv81-4cDYh1JBMdrz6mM18vh0rKlJ-x12rqQHCtex2E5t0NRW0XcTTN/exec';
         const WHATSAPP_NUMBER = '593967287360';
-
-        if (window.location.protocol === 'file:') {
-            document.getElementById('localWarning').classList.remove('hidden');
-        }
-
         let currentAdminPassword = '';
+        let globalItems = [];
 
         function toggleAdminLogin() {
-            const loginSec = document.getElementById('loginSection');
-            loginSec.classList.toggle('hidden');
+            document.getElementById('loginSection').classList.toggle('hidden');
             document.getElementById('adminDashboard').classList.add('hidden');
         }
 
@@ -280,30 +280,64 @@
                     document.getElementById('loginSection').classList.add('hidden');
                     document.getElementById('adminDashboard').classList.remove('hidden');
                     document.getElementById('adminPassInput').value = '';
+                    if(result.logo) {
+                        document.getElementById('mainLogoImg').src = result.logo;
+                    }
                     loadCatalog();
                 } else {
                     alert('Contraseña incorrecta.');
                 }
             } catch (err) {
-                alert('Error de conexión. Verifica tu URL de Apps Script o permisos.');
+                alert('Error de conexión.');
             }
         }
 
         function logoutAdmin() {
             currentAdminPassword = '';
             document.getElementById('adminDashboard').classList.add('hidden');
+            cancelEdit();
             loadCatalog();
+        }
+
+        async function updateLogoImage() {
+            const fileInput = document.getElementById('logoFile');
+            if (fileInput.files.length === 0) {
+                alert('Selecciona una imagen para el logo.');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    let response = await fetch(WEB_APP_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            action: 'updateLogo',
+                            password: currentAdminPassword,
+                            logo: e.target.result
+                        })
+                    });
+                    let result = await response.json();
+                    if (result.success) {
+                        alert('¡Logo actualizado con éxito!');
+                        document.getElementById('mainLogoImg').src = result.logo;
+                        fileInput.value = '';
+                    } else {
+                        alert('Error al actualizar el logo.');
+                    }
+                } catch(err) {
+                    alert('Error de red.');
+                }
+            };
+            reader.readAsDataURL(fileInput.files[0]);
         }
 
         async function changePassword() {
             const oldPass = document.getElementById('currentPass').value;
             const newPass = document.getElementById('newPass').value;
-
             if (!newPass || newPass.length < 4) {
                 alert('La nueva contraseña debe tener al menos 4 caracteres.');
                 return;
             }
-
             try {
                 let response = await fetch(WEB_APP_URL, {
                     method: 'POST',
@@ -323,7 +357,16 @@
             }
         }
 
-        function addItem() {
+        function saveItem() {
+            const editId = document.getElementById('editItemId').value;
+            if (editId) {
+                updateItemInCloud(editId);
+            } else {
+                addItemToCloud();
+            }
+        }
+
+        function addItemToCloud() {
             const category = document.getElementById('newCategory').value.trim();
             const name = document.getElementById('newItemName').value.trim();
             const regularPrice = document.getElementById('newRegularPrice').value.trim();
@@ -336,71 +379,108 @@
                 return;
             }
 
-            const sendDataToCloud = async (imgData) => {
-                try {
-                    let response = await fetch(WEB_APP_URL, {
-                        method: 'POST',
-                        body: JSON.stringify({ 
-                            action: 'addItem', 
-                            password: currentAdminPassword,
-                            category: category,
-                            name: name,
-                            img: imgData,
-                            desc: desc,
-                            regularPrice: regularPrice,
-                            promoPrice: promoPrice
-                        })
-                    });
-                    let result = await response.json();
-                    if (result.success) {
-                        alert('¡Producto guardado en Google Drive!');
-                        document.getElementById('newCategory').value = '';
-                        document.getElementById('newItemName').value = '';
-                        document.getElementById('newRegularPrice').value = '';
-                        document.getElementById('newPromoPrice').value = '';
-                        document.getElementById('newItemImgFile').value = '';
-                        document.getElementById('newItemDesc').value = '';
-                        loadCatalog();
-                    } else {
-                        alert('Error al guardar.');
-                    }
-                } catch (err) {
-                    alert('Error de red al conectar con la nube.');
-                }
+            const send = async (imgData) => {
+                let response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ 
+                        action: 'addItem', 
+                        password: currentAdminPassword,
+                        category, name, desc, regularPrice, promoPrice, img: imgData
+                    })
+                });
+                let result = await response.json();
+                if (result.success) {
+                    alert('¡Producto guardado!');
+                    clearForm();
+                    loadCatalog();
+                } else { alert('Error al guardar.'); }
             };
 
             if (imageFile) {
                 const reader = new FileReader();
-                reader.onload = function(e) {
-                    sendDataToCloud(e.target.result);
-                };
+                reader.onload = (e) => send(e.target.result);
+                reader.readAsDataURL(imageFile);
+            } else { send(''); }
+        }
+
+        function editItem(id) {
+            const item = globalItems.find(i => i.id === id);
+            if (!item) return;
+
+            document.getElementById('editItemId').value = item.id;
+            document.getElementById('newCategory').value = item.category;
+            document.getElementById('newItemName').value = item.name;
+            document.getElementById('newRegularPrice').value = item.regularPrice;
+            document.getElementById('newPromoPrice').value = item.promoPrice;
+            document.getElementById('newItemDesc').value = item.desc;
+            
+            document.getElementById('formTitleText').innerText = '✏️ Editando Producto: ' + item.name;
+            document.getElementById('saveBtn').innerText = 'Actualizar Cambios';
+            document.getElementById('cancelEditBtn').classList.remove('hidden');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function cancelEdit() {
+            document.getElementById('editItemId').value = '';
+            clearForm();
+            document.getElementById('formTitleText').innerText = 'Agregar Nuevo Producto';
+            document.getElementById('saveBtn').innerText = 'Guardar en la Nube';
+            document.getElementById('cancelEditBtn').classList.add('hidden');
+        }
+
+        function clearForm() {
+            document.getElementById('newCategory').value = '';
+            document.getElementById('newItemName').value = '';
+            document.getElementById('newRegularPrice').value = '';
+            document.getElementById('newPromoPrice').value = '';
+            document.getElementById('newItemImgFile').value = '';
+            document.getElementById('newItemDesc').value = '';
+        }
+
+        async function updateItemInCloud(id) {
+            const category = document.getElementById('newCategory').value.trim();
+            const name = document.getElementById('newItemName').value.trim();
+            const regularPrice = document.getElementById('newRegularPrice').value.trim();
+            const promoPrice = document.getElementById('newPromoPrice').value.trim();
+            const desc = document.getElementById('newItemDesc').value.trim();
+            const imageFile = document.getElementById('newItemImgFile').files[0];
+
+            const sendUpdate = async (imgData) => {
+                let response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ 
+                        action: 'editItem', 
+                        password: currentAdminPassword,
+                        id, category, name, desc, regularPrice, promoPrice, img: imgData
+                    })
+                });
+                let result = await response.json();
+                if (result.success) {
+                    alert('¡Producto actualizado con éxito!');
+                    cancelEdit();
+                    loadCatalog();
+                } else { alert('Error al actualizar.'); }
+            };
+
+            if (imageFile) {
+                const reader = new FileReader();
+                reader.onload = (e) => sendUpdate(e.target.result);
                 reader.readAsDataURL(imageFile);
             } else {
-                sendDataToCloud('');
+                sendUpdate(''); // Envía vacío para que el script mantenga la foto actual
             }
         }
 
         async function deleteItem(id) {
             if (!confirm('¿Estás seguro de eliminar este producto?')) return;
-
-            try {
-                let response = await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ 
-                        action: 'deleteItem', 
-                        password: currentAdminPassword,
-                        id: id
-                    })
-                });
-                let result = await response.json();
-                if (result.success) {
-                    loadCatalog();
-                } else {
-                    alert('Error al eliminar.');
-                }
-            } catch (err) {
-                alert('Error de red.');
-            }
+            let response = await fetch(WEB_APP_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'deleteItem', password: currentAdminPassword, id })
+            });
+            let result = await response.json();
+            if (result.success) loadCatalog();
+            else alert('Error al eliminar.');
         }
 
         async function loadCatalog() {
@@ -415,13 +495,17 @@
                 let result = await response.json();
                 
                 if (!result.success) {
-                    catalogView.innerHTML = '<p>Error al cargar los datos desde la nube. Verifica tu URL de Apps Script.</p>';
+                    catalogView.innerHTML = '<p>Error al cargar los datos.</p>';
                     return;
                 }
 
-                let data = result.items;
+                globalItems = result.items;
+                if (result.logo) {
+                    document.getElementById('mainLogoImg').src = result.logo;
+                }
+
                 let categories = {};
-                data.forEach(item => {
+                globalItems.forEach(item => {
                     if (!categories[item.category]) categories[item.category] = [];
                     categories[item.category].push(item);
                 });
@@ -433,15 +517,7 @@
                     html += `<div class="products-grid">`;
                     
                     categories[cat].forEach(item => {
-                        let finalPriceText = '';
-                        if (item.promoPrice && item.promoPrice !== '') {
-                            finalPriceText = `$${parseFloat(item.promoPrice).toFixed(2)}`;
-                        } else if (item.regularPrice && item.regularPrice !== '') {
-                            finalPriceText = `$${parseFloat(item.regularPrice).toFixed(2)}`;
-                        } else {
-                            finalPriceText = 'Consultar';
-                        }
-
+                        let finalPriceText = item.promoPrice ? `$${parseFloat(item.promoPrice).toFixed(2)}` : (item.regularPrice ? `$${parseFloat(item.regularPrice).toFixed(2)}` : 'Consultar');
                         let waText = encodeURIComponent(`Hola Chulla Regalo, me interesa el detalle "${item.name}" (${finalPriceText}) que vi en su catálogo web y quisiera más información.`);
                         let waLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${waText}`;
 
@@ -455,10 +531,10 @@
                         html += `<h3>${item.name}</h3>`;
                         
                         html += `<div class="price-box">`;
-                        if (item.promoPrice && item.promoPrice !== '') {
+                        if (item.promoPrice) {
                             html += `<span class="regular-price">$${parseFloat(item.regularPrice || 0).toFixed(2)}</span>`;
                             html += `<span class="promo-price">$${parseFloat(item.promoPrice).toFixed(2)}</span>`;
-                        } else if (item.regularPrice && item.regularPrice !== '') {
+                        } else if (item.regularPrice) {
                             html += `<span class="single-price">$${parseFloat(item.regularPrice).toFixed(2)}</span>`;
                         } else {
                             html += `<span style="color: #888; font-size: 13px;">Consultar precio</span>`;
@@ -466,28 +542,24 @@
                         html += `</div>`;
 
                         html += `<p>${item.desc || 'Sin descripción.'}</p>`;
-
                         html += `<a href="${waLink}" class="btn-whatsapp" target="_blank">💬 Pedir por WhatsApp</a>`;
 
                         if (isAdmin) {
-                            html += `<button class="btn btn-danger" style="margin-top: 8px;" onclick="deleteItem('${item.id}')">Eliminar de Drive</button>`;
+                            html += `<div style="display: flex; gap: 6px; margin-top: 8px;">`;
+                            html += `<button class="btn btn-warning" style="flex:1; padding: 6px;" onclick="editItem('${item.id}')">Editar ✏️</button>`;
+                            html += `<button class="btn btn-danger" style="flex:1; padding: 6px;" onclick="deleteItem('${item.id}')">Eliminar 🗑️</button>`;
+                            html += `</div>`;
                         }
                         
-                        html += `</div>`;
-                        html += `</div>`;
+                        html += `</div></div>`;
                     });
-
-                    html += `</div>`;
-                    html += `</div>`;
+                    html += `</div></div>`;
                 }
 
-                if (data.length === 0) {
-                    html = '<p>No hay productos en el catálogo.</p>';
-                }
-
+                if (globalItems.length === 0) html = '<p>No hay productos en el catálogo.</p>';
                 catalogView.innerHTML = html;
             } catch (err) {
-                catalogView.innerHTML = '<p>Error de conexión con Google Drive. Revisa la consola (F12) o tu URL.</p>';
+                catalogView.innerHTML = '<p>Error de conexión.</p>';
             }
         }
 
