@@ -152,7 +152,7 @@
     <header class="header-sticky">
         <div class="header-content">
             <div class="brand-container">
-                <img id="mainLogoImg" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCAxNTAgNTAiPjxyZWN0IHdpZHRoPSIxN0AiIGhlaWdodD0iNTAiIGZpbGw9IiNkNjMzODQiLz48dGV4dCB4PSI3NSIgeT0iMzIiIGZvbnQtc2l6ZT0iMjAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkNodWxsYSBSZWdhbG88L3RleHQ+PC9zdmc+" alt="Chulla Regalo Logo" class="brand-logo">
+                <img id="mainLogoImg" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCAxNTAgNTAiPjxyZWN0IHdpZHRoPSIxN0AiIGhlaWdodD0iNTAiIGZpbGw9IiNkNjMzODqatGV4dCB4PSI3NSIgeT0iMzIiIGZvbnQtc2l6ZT0iMjAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkNodWxsYSBSZWdhbG88L3RleHQ+PC9zdmc+" alt="Chulla Regalo Logo" class="brand-logo">
                 <div class="brand-texts">
                     <h1>Chulla Regalo</h1>
                     <span>Quito - Ecuador</span>
@@ -254,6 +254,7 @@
     </a>
 
     <script>
+        // Tu URL de Google Apps Script integrada correctamente
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwu-Ys9wHeY6tv81-4cDYh1JBMdrz6mM18vh0rKlJ-x12rqQHCtex2E5t0NRW0XcTTN/exec';
         const WHATSAPP_NUMBER = '593967287360';
         let currentAdminPassword = '';
@@ -265,7 +266,6 @@
         }
 
         async function apiRequest(payload) {
-            // Usamos text/plain para evitar el bloqueo de pre-flight CORS de Google Apps Script con POST
             let response = await fetch(WEB_APP_URL, {
                 method: 'POST',
                 headers: {
