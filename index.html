@@ -39,7 +39,6 @@
             gap: 15px;
             flex: 1;
         }
-        /* LOGO MÁS GRANDE Y LIBRE DE CÍRCULOS */
         .brand-logo {
             max-height: 70px;
             width: auto;
@@ -153,7 +152,7 @@
     <header class="header-sticky">
         <div class="header-content">
             <div class="brand-container">
-                <img id="mainLogoImg" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCAxNTAgNTAiPjxyZWN0IHdpZHRoPSIxNTAiIGhlaWdodD0iNTAiIGZpbGw9IiNkNjMzODhqIi8+PHRleHQgeD0iNzUiIHk9IjMyIiBmb250LXNpemU9IjIwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5DaHVsbGEgUmVnYWxvPC90ZXh0Pjwvc3ZnPg==" alt="Chulla Regalo Logo" class="brand-logo">
+                <img id="mainLogoImg" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCAxNTAgNTAiPjxyZWN0IHdpZHRoPSIxN0AiIGhlaWdodD0iNTAiIGZpbGw9IiNkNjMzODQiLz48dGV4dCB4PSI3NSIgeT0iMzIiIGZvbnQtc2l6ZT0iMjAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkNodWxsYSBSZWdhbG88L3RleHQ+PC9zdmc+" alt="Chulla Regalo Logo" class="brand-logo">
                 <div class="brand-texts">
                     <h1>Chulla Regalo</h1>
                     <span>Quito - Ecuador</span>
@@ -255,7 +254,6 @@
     </a>
 
     <script>
-        // Enlace oficial de tu Google Apps Script actualizado
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwu-Ys9wHeY6tv81-4cDYh1JBMdrz6mM18vh0rKlJ-x12rqQHCtex2E5t0NRW0XcTTN/exec';
         const WHATSAPP_NUMBER = '593967287360';
         let currentAdminPassword = '';
@@ -266,15 +264,23 @@
             document.getElementById('adminDashboard').classList.add('hidden');
         }
 
+        async function apiRequest(payload) {
+            // Usamos text/plain para evitar el bloqueo de pre-flight CORS de Google Apps Script con POST
+            let response = await fetch(WEB_APP_URL, {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "text/plain;charset=utf-8",
+                },
+                body: JSON.stringify(payload),
+                redirect: 'follow'
+            });
+            return await response.json();
+        }
+
         async function verifyLogin() {
             const pass = document.getElementById('adminPassInput').value;
             try {
-                let response = await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: 'login', password: pass }),
-                    redirect: 'follow'
-                });
-                let result = await response.json();
+                let result = await apiRequest({ action: 'login', password: pass });
                 if (result.success) {
                     currentAdminPassword = pass;
                     alert('¡Acceso concedido!');
@@ -309,16 +315,11 @@
             const reader = new FileReader();
             reader.onload = async function(e) {
                 try {
-                    let response = await fetch(WEB_APP_URL, {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            action: 'updateLogo',
-                            password: currentAdminPassword,
-                            logo: e.target.result
-                        }),
-                        redirect: 'follow'
+                    let result = await apiRequest({
+                        action: 'updateLogo',
+                        password: currentAdminPassword,
+                        logo: e.target.result
                     });
-                    let result = await response.json();
                     if (result.success) {
                         alert('¡Logo actualizado con éxito!');
                         document.getElementById('mainLogoImg').src = result.logo;
@@ -341,12 +342,7 @@
                 return;
             }
             try {
-                let response = await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: 'changePassword', oldPassword: oldPass, newPass: newPass }),
-                    redirect: 'follow'
-                });
-                let result = await response.json();
+                let result = await apiRequest({ action: 'changePassword', oldPassword: oldPass, newPass: newPass });
                 if (result.success) {
                     alert('¡Contraseña actualizada con éxito!');
                     currentAdminPassword = newPass;
@@ -383,16 +379,11 @@
             }
 
             const send = async (imgData) => {
-                let response = await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ 
-                        action: 'addItem', 
-                        password: currentAdminPassword,
-                        category, name, desc, regularPrice, promoPrice, img: imgData
-                    }),
-                    redirect: 'follow'
+                let result = await apiRequest({ 
+                    action: 'addItem', 
+                    password: currentAdminPassword,
+                    category, name, desc, regularPrice, promoPrice, img: imgData
                 });
-                let result = await response.json();
                 if (result.success) {
                     alert('¡Producto guardado!');
                     clearForm();
@@ -451,16 +442,11 @@
             const imageFile = document.getElementById('newItemImgFile').files[0];
 
             const sendUpdate = async (imgData) => {
-                let response = await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ 
-                        action: 'editItem', 
-                        password: currentAdminPassword,
-                        id, category, name, desc, regularPrice, promoPrice, img: imgData
-                    }),
-                    redirect: 'follow'
+                let result = await apiRequest({ 
+                    action: 'editItem', 
+                    password: currentAdminPassword,
+                    id, category, name, desc, regularPrice, promoPrice, img: imgData
                 });
-                let result = await response.json();
                 if (result.success) {
                     alert('¡Producto actualizado con éxito!');
                     cancelEdit();
@@ -479,12 +465,7 @@
 
         async function deleteItem(id) {
             if (!confirm('¿Estás seguro de eliminar este producto?')) return;
-            let response = await fetch(WEB_APP_URL, {
-                method: 'POST',
-                body: JSON.stringify({ action: 'deleteItem', password: currentAdminPassword, id }),
-                redirect: 'follow'
-            });
-            let result = await response.json();
+            let result = await apiRequest({ action: 'deleteItem', password: currentAdminPassword, id });
             if (result.success) loadCatalog();
             else alert('Error al eliminar.');
         }
@@ -494,13 +475,7 @@
             const isAdmin = !document.getElementById('adminDashboard').classList.contains('hidden');
 
             try {
-                let response = await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: 'getItems' }),
-                    redirect: 'follow' // Maneja correctamente las redirecciones de Google
-                });
-
-                let result = await response.json();
+                let result = await apiRequest({ action: 'getItems' });
                 
                 if (!result.success) {
                     catalogView.innerHTML = '<div style="text-align:center; padding: 20px;"><p>No se pudo conectar con la base de datos.</p><button class="btn" onclick="loadCatalog()">Reintentar</button></div>';
