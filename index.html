@@ -153,7 +153,7 @@
     <header class="header-sticky">
         <div class="header-content">
             <div class="brand-container">
-                <img id="mainLogoImg" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCAxNTAgNTAiPjxyZWN0IHdpZHRoPSIxNTAiIGhlaWdodD0iNTAiIGZpbGw9IiNkNjMzODQiLz48dGV4dCB4PSI3NSIgeT0iMzIiIGZvbnQtc2l6ZT0iMjAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkNodWxsYSBSZWdhbG88L3RleHQ+PC9zdmc+" alt="Chulla Regalo Logo" class="brand-logo">
+                <img id="mainLogoImg" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCAxNTAgNTAiPjxyZWN0IHdpZHRoPSIxNTAiIGhlaWdodD0iNTAiIGZpbGw9IiNkNjMzODhqIi8+PHRleHQgeD0iNzUiIHk9IjMyIiBmb250LXNpemU9IjIwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5DaHVsbGEgUmVnYWxvPC90ZXh0Pjwvc3ZnPg==" alt="Chulla Regalo Logo" class="brand-logo">
                 <div class="brand-texts">
                     <h1>Chulla Regalo</h1>
                     <span>Quito - Ecuador</span>
@@ -271,7 +271,8 @@
             try {
                 let response = await fetch(WEB_APP_URL, {
                     method: 'POST',
-                    body: JSON.stringify({ action: 'login', password: pass })
+                    body: JSON.stringify({ action: 'login', password: pass }),
+                    redirect: 'follow'
                 });
                 let result = await response.json();
                 if (result.success) {
@@ -314,7 +315,8 @@
                             action: 'updateLogo',
                             password: currentAdminPassword,
                             logo: e.target.result
-                        })
+                        }),
+                        redirect: 'follow'
                     });
                     let result = await response.json();
                     if (result.success) {
@@ -341,7 +343,8 @@
             try {
                 let response = await fetch(WEB_APP_URL, {
                     method: 'POST',
-                    body: JSON.stringify({ action: 'changePassword', oldPassword: oldPass, newPass: newPass })
+                    body: JSON.stringify({ action: 'changePassword', oldPassword: oldPass, newPass: newPass }),
+                    redirect: 'follow'
                 });
                 let result = await response.json();
                 if (result.success) {
@@ -386,7 +389,8 @@
                         action: 'addItem', 
                         password: currentAdminPassword,
                         category, name, desc, regularPrice, promoPrice, img: imgData
-                    })
+                    }),
+                    redirect: 'follow'
                 });
                 let result = await response.json();
                 if (result.success) {
@@ -453,7 +457,8 @@
                         action: 'editItem', 
                         password: currentAdminPassword,
                         id, category, name, desc, regularPrice, promoPrice, img: imgData
-                    })
+                    }),
+                    redirect: 'follow'
                 });
                 let result = await response.json();
                 if (result.success) {
@@ -476,7 +481,8 @@
             if (!confirm('¿Estás seguro de eliminar este producto?')) return;
             let response = await fetch(WEB_APP_URL, {
                 method: 'POST',
-                body: JSON.stringify({ action: 'deleteItem', password: currentAdminPassword, id })
+                body: JSON.stringify({ action: 'deleteItem', password: currentAdminPassword, id }),
+                redirect: 'follow'
             });
             let result = await response.json();
             if (result.success) loadCatalog();
@@ -488,15 +494,11 @@
             const isAdmin = !document.getElementById('adminDashboard').classList.contains('hidden');
 
             try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 10000);
-
                 let response = await fetch(WEB_APP_URL, {
                     method: 'POST',
                     body: JSON.stringify({ action: 'getItems' }),
-                    signal: controller.signal
+                    redirect: 'follow' // Maneja correctamente las redirecciones de Google
                 });
-                clearTimeout(timeoutId);
 
                 let result = await response.json();
                 
@@ -569,8 +571,8 @@
             } catch (err) {
                 console.error("Error al cargar:", err);
                 catalogView.innerHTML = `<div style="text-align:center; padding: 20px;">
-                    <p style="color: #e74c3c; font-weight: bold;">Error al conectar con el servidor (Google Apps Script).</p>
-                    <p style="font-size: 13px; color: #666;">Asegúrate de haber guardado y vuelto a desplegar tu Apps Script como aplicación web.</p>
+                    <p style="color: #e74c3c; font-weight: bold;">Error al conectar con el servidor.</p>
+                    <p style="font-size: 13px; color: #666;">Detalle: ${err.message}</p>
                     <button class="btn" onclick="loadCatalog()" style="margin-top: 10px;">Reintentar Conexión</button>
                 </div>`;
             }
