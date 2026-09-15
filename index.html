@@ -23,7 +23,7 @@
             z-index: 1000;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             border-bottom: 2px solid #fce4ec;
-            padding: 12px 20px;
+            padding: 10px 20px;
         }
         .header-content {
             max-width: 1200px;
@@ -36,16 +36,15 @@
         .brand-container {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 15px;
             flex: 1;
         }
+        /* LOGO MÁS GRANDE Y LIBRE DE CÍRCULOS */
         .brand-logo {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid var(--primary);
-            background-color: #fce4ec;
+            max-height: 70px;
+            width: auto;
+            object-fit: contain;
+            display: block;
         }
         .brand-texts h1 {
             margin: 0;
@@ -154,7 +153,7 @@
     <header class="header-sticky">
         <div class="header-content">
             <div class="brand-container">
-                <img id="mainLogoImg" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 50 50'><rect width='50' height='50' fill='%23d63384'/><text x='25' y='31' font-size='18' font-family='sans-serif' font-weight='bold' fill='white' text-anchor='middle'>CR</text></svg>" alt="Chulla Regalo Logo" class="brand-logo">
+                <img id="mainLogoImg" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCAxNTAgNTAiPjxyZWN0IHdpZHRoPSIxNTAiIGhlaWdodD0iNTAiIGZpbGw9IiNkNjMzODQiLz48dGV4dCB4PSI3NSIgeT0iMzIiIGZvbnQtc2l6ZT0iMjAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkNodWxsYSBSZWdhbG88L3RleHQ+PC9zdmc+" alt="Chulla Regalo Logo" class="brand-logo">
                 <div class="brand-texts">
                     <h1>Chulla Regalo</h1>
                     <span>Quito - Ecuador</span>
@@ -182,7 +181,6 @@
         <div id="adminDashboard" class="admin-panel hidden">
             <h3>🛠️ Panel de Control (Nube)</h3>
             
-            <!-- Sección cambiar Logo -->
             <div style="background: #fff; padding: 15px; border-radius: 6px; margin-bottom: 20px; border: 1px solid #ddd;">
                 <h4 style="margin-top:0;">🖼️ Cambiar Logo de la Marca</h4>
                 <div class="form-group">
@@ -257,6 +255,7 @@
     </a>
 
     <script>
+        // Enlace oficial de tu Google Apps Script actualizado
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwu-Ys9wHeY6tv81-4cDYh1JBMdrz6mM18vh0rKlJ-x12rqQHCtex2E5t0NRW0XcTTN/exec';
         const WHATSAPP_NUMBER = '593967287360';
         let currentAdminPassword = '';
@@ -489,18 +488,24 @@
             const isAdmin = !document.getElementById('adminDashboard').classList.contains('hidden');
 
             try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000);
+
                 let response = await fetch(WEB_APP_URL, {
                     method: 'POST',
-                    body: JSON.stringify({ action: 'getItems' })
+                    body: JSON.stringify({ action: 'getItems' }),
+                    signal: controller.signal
                 });
+                clearTimeout(timeoutId);
+
                 let result = await response.json();
                 
                 if (!result.success) {
-                    catalogView.innerHTML = '<p>Error al cargar los datos.</p>';
+                    catalogView.innerHTML = '<div style="text-align:center; padding: 20px;"><p>No se pudo conectar con la base de datos.</p><button class="btn" onclick="loadCatalog()">Reintentar</button></div>';
                     return;
                 }
 
-                globalItems = result.items;
+                globalItems = result.items || [];
                 if (result.logo) {
                     document.getElementById('mainLogoImg').src = result.logo;
                 }
@@ -557,10 +562,17 @@
                     html += `</div></div>`;
                 }
 
-                if (globalItems.length === 0) html = '<p>No hay productos en el catálogo.</p>';
+                if (globalItems.length === 0) {
+                    html = '<div style="text-align:center; padding: 20px;"><p>El catálogo está vacío actualmente. Entra al Panel Admin para agregar tu primer producto.</p></div>';
+                }
                 catalogView.innerHTML = html;
             } catch (err) {
-                catalogView.innerHTML = '<p>Error de conexión.</p>';
+                console.error("Error al cargar:", err);
+                catalogView.innerHTML = `<div style="text-align:center; padding: 20px;">
+                    <p style="color: #e74c3c; font-weight: bold;">Error al conectar con el servidor (Google Apps Script).</p>
+                    <p style="font-size: 13px; color: #666;">Asegúrate de haber guardado y vuelto a desplegar tu Apps Script como aplicación web.</p>
+                    <button class="btn" onclick="loadCatalog()" style="margin-top: 10px;">Reintentar Conexión</button>
+                </div>`;
             }
         }
 
